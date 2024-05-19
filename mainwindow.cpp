@@ -59,7 +59,8 @@ QString mac(QString str, QFile* file)
     }else {
         str = "Произошла ошибка";
         return str;
-    }
+    }//oxfghfbipgjtp
+    //hnij'ghigfkopdxgj
 }
 
 
