@@ -342,7 +342,7 @@ bign_params params ()
 
 
 
-int key_gen (const bign_params* paramets, octet privkey[32], octet pubkey[64], octet brng_state[1024], int k)
+int key_gen (const bign_params* paramets, octet privkey[32], octet pubkey[64], octet brng_state[1024])
 {
     QString pwds = "C:\\Users\\user\\Desktop\\bee2\\bee2-master\\bee2-master\\win\\vs15\\distrib\\Debug64\\bee2.dll";
     QLibrary lib(pwds);
@@ -390,13 +390,8 @@ int key_gen (const bign_params* paramets, octet privkey[32], octet pubkey[64], o
 
     qDebug()<<"state before start  " << brng_state;
 
-    qDebug()<<k;
-
-    if(k==0)
-    {
     brngCTRXStart(beltH() + 128, beltH() + 128 + 64, beltH(), 8 * 32, brng_state);
-        k=1;
-    }
+
     // qDebug() <<"До функции:"<< QByteArray::fromRawData((const char *)privkey, 32).toHex();
     // qDebug() << QByteArray::fromRawData((const char *)pubkey, 32).toHex();    brngCTRXStart(beltH() + 128, beltH() + 128 + 64, beltH(), 8 * 32, brng_state);
 
@@ -427,7 +422,7 @@ int key_gen (const bign_params* paramets, octet privkey[32], octet pubkey[64], o
 }
 
 
-QString Sign (octet sig[], const bign_params* paramets, QFile* file1, QFile* file)
+QString Sign (octet sig[], const bign_params* paramets, /*QFile* file1,*/ QFile* file)
 {
     QString pwd = "C:\\Users\\user\\Desktop\\bee2\\bee2-master\\bee2-master\\win\\vs15\\distrib\\Debug64\\bee2.dll";
     QLibrary lib(pwd);
@@ -495,8 +490,7 @@ QString Sign (octet sig[], const bign_params* paramets, QFile* file1, QFile* fil
     paramets=&parametrs;
     octet privkey[32];
     octet pubkey[64];
-
-    int k =key_gen(paramets, privkey, pubkey,brng_state, k);
+    key_gen(paramets, privkey, pubkey,brng_state);
 
 
     QString str;
@@ -506,7 +500,7 @@ QString Sign (octet sig[], const bign_params* paramets, QFile* file1, QFile* fil
 
     qDebug() << str;
 
-    //brngCTRXStart(beltH() + 128, beltH() + 128 + 64, beltH(), 8 * 32, brng_state);
+    brngCTRXStart(beltH() + 128, beltH() + 128 + 64, beltH(), 8 * 32, brng_state);
 
     err_t t = bignSign(sig, paramets, der, 11, hash, privkey, brngCTRXStepR, brng_state);
 
@@ -799,15 +793,15 @@ void MainWindow::on_pushButton_ok_ecp_clicked()
     ui->label_ecp_result->setVisible(false);
 
     QString str = ui->textEdit_path_to_file_ecp->toPlainText();
-    QString str1 = ui->textEdit_key_for_ecp->toPlainText();
+ //   QString str1 = ui->textEdit_key_for_ecp->toPlainText();
     QFile file(str);
     QFile *fille =&file;
-    QFile file1(str1);
-    QFile *fille1 =&file1;
+    // QFile file1(str1);
+    // QFile *fille1 =&file1;
     octet sig[32];
     const bign_params* paramets;
 
-    str = Sign (sig, paramets, fille1,fille);
+    str = Sign (sig, paramets,/* fille1,*/fille);
 
 
     if (str == "Произошла ошибка")
@@ -821,8 +815,8 @@ void MainWindow::on_pushButton_ok_ecp_clicked()
         ui->textEdit_ecp->setText(str);
     }
 
-    ui->textEdit_path_to_file_ecp->clear();
-    ui->textEdit_key_for_ecp->clear();
+    // ui->textEdit_path_to_file_ecp->clear();
+    // ui->textEdit_key_for_ecp->clear();
 }
 
 
@@ -840,7 +834,7 @@ void MainWindow::on_pushButton_key_gen_clicked()
     octet pubkey[64];
     octet brng_state[1024];
 
-    int k = key_gen(paramets, privkey, pubkey, brng_state, k);
+    key_gen(paramets, privkey, pubkey, brng_state);
 
     QByteArray privData = QByteArray::fromRawData((const char *)privkey, 32).toHex();
     QString priv = QString::fromLocal8Bit(privData);
